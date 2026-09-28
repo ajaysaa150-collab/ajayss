@@ -1,0 +1,6 @@
+{
+  "name": "Brew & Bloom Café",
+  "description": "Specialty café and bakery in Gomti Nagar, Lucknow. Fresh brews, fresh bakes, and cozy vibes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

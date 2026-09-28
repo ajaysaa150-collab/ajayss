@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with contact details, loyalty status and order counts",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "totalBookings": { "type": "number" },
+        "totalOrders": { "type": "number" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Table reservation in the cafe",
+      "type": "object",
+      "properties": {
+        "confirmationCode": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "guests": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "seating": { "type": "string" },
+        "specialNotes": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAtIso": { "type": "string" }
+      },
+      "required": ["confirmationCode", "customerName", "customerPhone", "guests", "date", "time", "seating", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer food & beverage order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "date": { "type": "string" },
+        "orderType": { "type": "string" },
+        "subtotal": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "userId", "date", "orderType", "subtotal", "tax", "total", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles storing contact details and order statistics"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Table reservation bookings made by patrons or guests"
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Past orders and receipt history for a patron"
+    }
+  }
+}

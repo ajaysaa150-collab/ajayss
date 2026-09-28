@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'admin@gmail.com' ||
+        (request.auth.token.keys().hasAll(['admin']) && request.auth.token.admin == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Health check test connection path
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    // User Profile
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+
+      // Nested user orders
+      match /orders/{orderId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      // Nested user past orders
+      match /pastOrders/{orderId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // Table Bookings
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.userEmail == request.auth.token.email ||
+        isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid) ||
+        (resource.data.userEmail == request.auth.token.email) ||
+        isAdmin()
+      );
+      // Anyone can create a booking reservation (including guests)
+      allow create: if true;
+      // Updating or canceling booking
+      allow update, delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.userEmail == request.auth.token.email ||
+        isAdmin()
+      );
+    }
+  }
+}

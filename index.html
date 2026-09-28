@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <script>
+      (function() {
+        try {
+          var _fetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return _fetch;
+            },
+            set: function(val) {
+              _fetch = val;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          try {
+            var proto = Object.getPrototypeOf(window);
+            if (proto) {
+              var _protoFetch = window.fetch;
+              Object.defineProperty(proto, 'fetch', {
+                get: function() {
+                  return _protoFetch;
+                },
+                set: function(val) {
+                  _protoFetch = val;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e2) {}
+        }
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brew & Bloom Café | Specialty Café & Bakery in Gomti Nagar, Lucknow</title>
+    <meta name="description" content="Brew & Bloom Café is Gomti Nagar, Lucknow's specialty coffee house and artisan bakery. Fresh brews, fresh bakes, cozy vibes, high-speed Wi-Fi, and pet-friendly seating." />
+    <meta property="og:title" content="Brew & Bloom Café | Specialty Café & Bakery" />
+    <meta property="og:description" content="Fresh Brews. Fresh Bakes. Good Vibes. Specialty coffee, handcrafted sandwiches, and artisan desserts in Gomti Nagar, Lucknow." />
+    <meta property="og:type" content="restaurant.restaurant" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CafeOrCoffeeShop",
+        "name": "Brew & Bloom Café",
+        "image": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Vibhuti Khand, Gomti Nagar",
+          "addressLocality": "Lucknow",
+          "addressRegion": "Uttar Pradesh",
+          "postalCode": "226010",
+          "addressCountry": "IN"
+        },
+        "telephone": "+91 98765 43210",
+        "email": "hello@brewandbloom.example",
+        "servesCuisine": ["Specialty Coffee", "Bakery", "Artisan Desserts", "Gourmet Sandwiches"],
+        "priceRange": "₹₹",
+        "openingHours": "Mo-Su 08:00-22:30",
+        "url": "https://brewandbloom.example"
+      }
+    </script>
+  </head>
+  <body class="bg-[#FFF8EE] text-[#3B241A] font-sans antialiased selection:bg-[#C96F4A]/20 selection:text-[#3B241A]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
