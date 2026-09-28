@@ -12,6 +12,8 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, googleProvider } from './config';
 import { UserProfile } from '../types';
 
+const PATRON_SESSION_KEY = 'brew_bloom_active_patron';
+
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
@@ -19,6 +21,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string, name: string, phone?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInAsGuestPatron: (name?: string, email?: string, phone?: string) => UserProfile;
   logOut: () => Promise<void>;
 }
 
@@ -93,10 +96,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
+        setUser(currentUser);
         await syncUserProfile(currentUser);
+        try {
+          localStorage.removeItem(PATRON_SESSION_KEY);
+        } catch {}
       } else {
+        // Check for local patron session fallback if user opted into guest mode
+        try {
+          const savedPatron = localStorage.getItem(PATRON_SESSION_KEY);
+          if (savedPatron) {
+            const parsed: UserProfile = JSON.parse(savedPatron);
+            setUserProfile(parsed);
+            // Provide a compatible user object for components that read user.uid or user.email
+            setUser({
+              uid: parsed.uid,
+              email: parsed.email,
+              displayName: parsed.displayName,
+              photoURL: parsed.photoURL,
+            } as unknown as User);
+            setLoading(false);
+            return;
+          }
+        } catch {}
+        setUser(null);
         setUserProfile(null);
       }
       setLoading(false);
@@ -104,6 +128,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => unsubscribe();
   }, []);
+
+  const signInAsGuestPatron = (name?: string, email?: string, phone?: string): UserProfile => {
+    const cleanName = name?.trim() || 'Valued Patron';
+    const cleanEmail = email?.trim() || 'patron@brewandbloom.example';
+    const cleanPhone = phone?.trim() || '';
+    const uid = `patron-${Date.now()}`;
+
+    const profile: UserProfile = {
+      uid,
+      email: cleanEmail,
+      displayName: cleanName,
+      phoneNumber: cleanPhone,
+      photoURL: null,
+      createdAt: new Date().toISOString(),
+      totalBookings: 0,
+      totalOrders: 0,
+    };
+
+    try {
+      localStorage.setItem(PATRON_SESSION_KEY, JSON.stringify(profile));
+    } catch {}
+
+    setUserProfile(profile);
+    setUser({
+      uid: profile.uid,
+      email: profile.email,
+      displayName: profile.displayName,
+      photoURL: null,
+    } as unknown as User);
+
+    return profile;
+  };
 
   const signInWithEmail = async (email: string, pass: string) => {
     const cleanEmail = email.trim();
@@ -152,7 +208,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logOut = async () => {
-    await signOut(auth);
+    try {
+      localStorage.removeItem(PATRON_SESSION_KEY);
+    } catch {}
+    try {
+      await signOut(auth);
+    } catch {}
     setUser(null);
     setUserProfile(null);
   };
@@ -166,6 +227,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,
+        signInAsGuestPatron,
         logOut,
       }}
     >
